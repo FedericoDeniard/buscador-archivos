@@ -66,9 +66,11 @@ func main() {
 		pathsFound = append(pathsFound, path)
 	}
 	finish := time.Now()
-	fmt.Println("Archivos encontrados: ", len(pathsFound), "\n")
+	fmt.Println("\n", len(pathsFound), "archivos encontrados")
 	for _, path := range pathsFound {
-		fmt.Println(path)
+		dir := filepath.Dir(path)
+		link := fmt.Sprintf("\033]8;;file://%s\033\\%s\033]8;;\033\\", dir, path)
+		fmt.Println(link)
 	}
 	fmt.Println("\nTiempo de ejecución: ", finish.Sub(start))
 }
