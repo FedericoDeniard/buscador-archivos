@@ -33,12 +33,14 @@ func findFile(fileToSearch string, path string, ch chan string, wg *sync.WaitGro
 }
 
 func main() {
-	fileToSearch := flag.String("file", "", "Archivo a buscar")
-	deepSearch := flag.Bool("deep", false, "Busca desde el directorio base")
+	fmt.Println("Buscando archivos...")
 	start := time.Now()
+	fileToSearch := flag.String("file", "", "Archivo a buscar")
+	deepSearch := flag.Bool("deep", false, "Busca desde el directorio base del sistema")
 
 	flag.Parse()
 	if *fileToSearch == "" {
+		fmt.Println("Debe especificar un archivo a buscar")
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -64,7 +66,7 @@ func main() {
 		pathsFound = append(pathsFound, path)
 	}
 	finish := time.Now()
-	fmt.Println("Archivos encontrados: \n", len(pathsFound))
+	fmt.Println("Archivos encontrados: ", len(pathsFound), "\n")
 	for _, path := range pathsFound {
 		fmt.Println(path)
 	}
