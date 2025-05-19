@@ -41,6 +41,10 @@ func findFile(fileToSearch string, path string, excludedRoutes []string, ch chan
 
 func main() {
 	start := time.Now()
+	defer func() {
+		fmt.Println("\nTiempo de ejecución: ", time.Since(start))
+	}()
+
 	fileToSearch := flag.String("file", "", "Archivo a buscar")
 	deepSearch := flag.Bool("deep", false, "Busca desde el directorio base del sistema")
 	excludeRouteFlag := flag.String("exclude", "", "Directorio a excluir, separados por comas sin espacios")
@@ -82,12 +86,10 @@ func main() {
 	for path := range ch {
 		pathsFound = append(pathsFound, path)
 	}
-	finish := time.Now()
 	fmt.Println("\n", len(pathsFound), "archivos encontrados")
 	for _, path := range pathsFound {
 		dir := filepath.Dir(path)
 		link := fmt.Sprintf("\033]8;;file://%s\033\\%s\033]8;;\033\\", dir, path)
 		fmt.Println(link)
 	}
-	fmt.Println("\nTiempo de ejecución: ", finish.Sub(start))
 }
