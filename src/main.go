@@ -40,18 +40,24 @@ func findFile(fileToSearch string, path string, excludedRoutes []string, ch chan
 }
 
 func main() {
-	fmt.Println("Buscando archivos...")
 	start := time.Now()
 	fileToSearch := flag.String("file", "", "Archivo a buscar")
 	deepSearch := flag.Bool("deep", false, "Busca desde el directorio base del sistema")
 	excludeRouteFlag := flag.String("exclude", "", "Directorio a excluir, separados por comas sin espacios")
+	helpFlag := flag.Bool("help", false, "Muestra la ayuda")
 
 	flag.Parse()
+	if *helpFlag {
+		flag.Usage()
+		os.Exit(0)
+	}
+
 	if *fileToSearch == "" {
 		fmt.Println("Debe especificar un archivo a buscar")
 		flag.Usage()
 		os.Exit(1)
 	}
+	fmt.Println("Buscando archivos...")
 
 	var excludedRoutes []string
 	excludedRoutes = strings.Split(*excludeRouteFlag, ",")
