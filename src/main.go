@@ -6,11 +6,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
 
-func findFile(fileToSearch string, path string, ch chan string, wg *sync.WaitGroup) {
+func findFile(fileToSearch string, path string, excludedRoutes []string, ch chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	entries, err := os.ReadDir(path)
@@ -26,8 +27,14 @@ func findFile(fileToSearch string, path string, ch chan string, wg *sync.WaitGro
 				ch <- fullPath
 			}
 		} else {
-			wg.Add(1)
-			go findFile(fileToSearch, fullPath, ch, wg)
+			for _, excludedRoute := range excludedRoutes {
+				if strings.EqualFold(entry.Name(), excludedRoute) {
+					continue
+				} else {
+					wg.Add(1)
+					go findFile(fileToSearch, fullPath, excludedRoutes, ch, wg)
+				}
+			}
 		}
 	}
 }
@@ -37,6 +44,7 @@ func main() {
 	start := time.Now()
 	fileToSearch := flag.String("file", "", "Archivo a buscar")
 	deepSearch := flag.Bool("deep", false, "Busca desde el directorio base del sistema")
+	excludeRouteFlag := flag.String("exclude", "", "Directorio a excluir, separados por comas sin espacios")
 
 	flag.Parse()
 	if *fileToSearch == "" {
@@ -45,6 +53,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	var excludedRoutes []string
+	excludedRoutes = strings.Split(*excludeRouteFlag, ",")
+	fmt.Println(excludedRoutes)
 	ch := make(chan string)
 
 	var wg sync.WaitGroup
@@ -55,7 +66,7 @@ func main() {
 		baseDir = "/"
 	}
 
-	go findFile(*fileToSearch, baseDir, ch, &wg)
+	go findFile(*fileToSearch, baseDir, excludedRoutes, ch, &wg)
 	go func() {
 		wg.Wait()
 		close(ch)
